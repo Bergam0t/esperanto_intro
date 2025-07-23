@@ -2,10 +2,18 @@ import streamlit as st
 import pandas as pd
 from gtts import gTTS
 from io import BytesIO
+from time import sleep
+import random
+
+st.set_page_config(layout="wide")
 
 st.title("An Introduction to Esperanto")
 
-st.set_page_config(layout="wide")
+if "game_started" not in st.session_state:
+    st.session_state.game_started = False
+if "current_question" not in st.session_state:
+    st.session_state.current_question = None
+
 
 @st.cache_data
 def read_in():
@@ -14,14 +22,21 @@ def read_in():
     nouns = pd.read_excel("word_list.xlsx", sheet_name="nouns")
     colours = pd.read_excel("word_list.xlsx", sheet_name="colours")
     verbs = pd.read_excel("word_list.xlsx", sheet_name="verbs")
+    all_vocab = pd.concat(
+        [pronouns.rename(columns={"pronoun":"word"}),
+        verbs.rename(columns={"verb":"word", "translation_singular":"translation"}),
+        adjectives.rename(columns={"adjective":"word"}),
+        colours.rename(columns={"colour":"word"}),
+        nouns.rename(columns={"noun":"word"})]
+        )
 
     nouns["emoji"] = ["🐦", "⚽", "🐈", "🐕", "🚗", "🐢", "🐇", "🐍", "🖥️"]
     colours["emoji"] = ["🟤", "⚪", "🟡", "🟢",  "🔵", "🟣"]
     adjectives["emoji"] = ["😃", "😭", "⬆️", "⬇️", "🏃", "🚶"]
 
-    return pronouns, adjectives, nouns, colours, verbs
+    return pronouns, adjectives, nouns, colours, verbs, all_vocab
 
-pronouns, adjectives, nouns, colours, verbs = read_in()
+pronouns, adjectives, nouns, colours, verbs, all_vocab = read_in()
 
 tab1, tab2, tab3 = st.tabs(["Sentence Playground", "Sentence Practice", "Vocab Game"])
 
@@ -265,3 +280,41 @@ with tab2:
             st.info("Choose your answers using the dropdown boxes")
         else:
             st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
+
+
+    with tab3:
+        button_text = "Generate Word"
+
+        @st.fragment
+        def generate_new_word():
+            sampled_rows = all_vocab.sample(3)
+            chosen_row = sampled_rows.head(1)
+            st.header(chosen_row["word"].values[0])
+
+
+            correct = chosen_row["translation"].values[0]
+            dummy_1 = sampled_rows[1:2]["translation"].values[0]
+            dummy_2 = sampled_rows[2:]["translation"].values[0]
+
+            col_ans_1, col_ans_2, col_ans_3 = st.columns([0.2, 0.2, 0.2])
+            answer_cols = [col_ans_1, col_ans_2, col_ans_3]
+            random.shuffle(answer_cols)
+
+            correct_button = answer_cols[0].button(correct)
+            dummy_button_1 = answer_cols[1].button(dummy_1)
+            dummy_button_2 = answer_cols[2].button(dummy_2)
+
+            play_sound(chosen_row["word"].values[0], autoplay=True)
+
+            if correct_button:
+                st.success("Well done!")
+                with st.spinner():
+                    sleep(2)
+                generate_new_word()
+            elif dummy_button_1 or dummy_button_2:
+                st.warning("Try again!")
+
+
+        vocab_game = st.button(button_text)
+        if vocab_game:
+            generate_new_word()
