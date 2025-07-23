@@ -268,10 +268,10 @@ with tab2:
 
     word_4_sentence_2_choices = {
             "Choose": "",
-            'doma': "In libra, the -a ending indicates an adjective, so this is like saying 'houselike'",
+            'doma': "In doma, the -a ending indicates an adjective, so this is like saying 'houselike'",
             'domo': "",
-            "domos": "The -os ending is a verb that indicates something will be done in the future",
-            "domoj": "The -o ending does indicate a noun here, but the -j indicates multiple houses"
+            "domos": "In domos, the -os ending is a verb that indicates something will be done in the future",
+            "domoj": "In domoj, the -o ending does indicate a noun here, but the -j indicates multiple houses"
         }
 
     word_4_sentence_2 = col_s2_4.selectbox("col_s2_4", word_4_sentence_2_choices, label_visibility="hidden")
