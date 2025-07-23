@@ -18,10 +18,16 @@ if "current_question" not in st.session_state:
 @st.cache_data
 def read_in():
     pronouns = pd.read_excel("word_list.xlsx", sheet_name="pronouns")
+    pronouns["what"] = "Pronoun"
     adjectives = pd.read_excel("word_list.xlsx", sheet_name="adjectives")
+    adjectives["what"] = "Adjective"
     nouns = pd.read_excel("word_list.xlsx", sheet_name="nouns")
+    nouns["what"] = "Noun"
     colours = pd.read_excel("word_list.xlsx", sheet_name="colours")
+    colours["what"] = "Adjective"
     verbs = pd.read_excel("word_list.xlsx", sheet_name="verbs")
+    verbs["what"] = "Verb"
+
     all_vocab = pd.concat(
         [pronouns.rename(columns={"pronoun":"word"}),
         verbs.rename(columns={"verb":"word", "translation_singular":"translation"}),
@@ -282,39 +288,64 @@ with tab2:
             st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
 
 
-    with tab3:
-        button_text = "Generate Word"
+import streamlit as st
+import pandas as pd
+import random
+from time import sleep
 
-        @st.fragment
-        def generate_new_word():
-            sampled_rows = all_vocab.sample(3)
-            chosen_row = sampled_rows.head(1)
-            st.header(chosen_row["word"].values[0])
+# Replace with your actual vocabulary DataFrame
+# all_vocab = pd.read_csv("vocab.csv")  # or however you're loading it
+
+# Initialize game state
+if "game_started" not in st.session_state:
+    st.session_state.game_started = False
+if "current_question" not in st.session_state:
+    st.session_state.current_question = None
 
 
-            correct = chosen_row["translation"].values[0]
-            dummy_1 = sampled_rows[1:2]["translation"].values[0]
-            dummy_2 = sampled_rows[2:]["translation"].values[0]
+def generate_question():
+    sampled_rows = all_vocab.sample(3)
+    chosen_row = sampled_rows.head(1)
+    correct = chosen_row["translation"].values[0]
+    dummy_1 = sampled_rows[1:2]["translation"].values[0]
+    dummy_2 = sampled_rows[2:]["translation"].values[0]
 
-            col_ans_1, col_ans_2, col_ans_3 = st.columns([0.2, 0.2, 0.2])
-            answer_cols = [col_ans_1, col_ans_2, col_ans_3]
-            random.shuffle(answer_cols)
+    # Shuffle answers
+    answers = [
+        {"text": correct, "is_correct": True},
+        {"text": dummy_1, "is_correct": False},
+        {"text": dummy_2, "is_correct": False}
+    ]
+    random.shuffle(answers)
+    word = chosen_row["word"].values[0]
+    play_sound(word)
 
-            correct_button = answer_cols[0].button(correct)
-            dummy_button_1 = answer_cols[1].button(dummy_1)
-            dummy_button_2 = answer_cols[2].button(dummy_2)
+    # Save current question in session state
+    st.session_state.current_question = {
+        "word": word,
+        "answers": answers,
+    }
 
-            play_sound(chosen_row["word"].values[0], autoplay=True)
+with tab3:
+    if not st.session_state.game_started:
+        if st.button("Generate Word"):
+            st.session_state.game_started = True
+            generate_question()
 
-            if correct_button:
-                st.success("Well done!")
-                with st.spinner():
+    if st.session_state.game_started and st.session_state.current_question:
+        word = st.session_state.current_question["word"]
+        answers = st.session_state.current_question["answers"]
+
+        st.header(word)
+        # play_sound(word, autoplay=True)  # Uncomment if `play_sound()` is defined
+
+        cols = st.columns(3)
+        for col, answer in zip(cols, answers):
+            if col.button(answer["text"]):
+                if answer["is_correct"]:
+                    st.success("Well done! Generating a new question")
                     sleep(2)
-                generate_new_word()
-            elif dummy_button_1 or dummy_button_2:
-                st.warning("Try again!")
-
-
-        vocab_game = st.button(button_text)
-        if vocab_game:
-            generate_new_word()
+                    generate_question()
+                    st.rerun()
+                else:
+                    st.warning("Try again!")
