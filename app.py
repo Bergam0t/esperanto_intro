@@ -18,15 +18,15 @@ if "current_question" not in st.session_state:
 @st.cache_data
 def read_in():
     pronouns = pd.read_excel("word_list.xlsx", sheet_name="pronouns")
-    pronouns["what"] = "Pronoun"
+    pronouns["What"] = "Pronoun"
     adjectives = pd.read_excel("word_list.xlsx", sheet_name="adjectives")
-    adjectives["what"] = "Adjective"
+    adjectives["What"] = "Adjective"
     nouns = pd.read_excel("word_list.xlsx", sheet_name="nouns")
-    nouns["what"] = "Noun"
+    nouns["What"] = "Noun"
     colours = pd.read_excel("word_list.xlsx", sheet_name="colours")
-    colours["what"] = "Adjective"
+    colours["What"] = "Adjective"
     verbs = pd.read_excel("word_list.xlsx", sheet_name="verbs")
-    verbs["what"] = "Verb"
+    verbs["What"] = "Verb"
 
     all_vocab = pd.concat(
         [pronouns.rename(columns={"pronoun":"word"}),
@@ -287,12 +287,6 @@ with tab2:
         else:
             st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
 
-
-import streamlit as st
-import pandas as pd
-import random
-from time import sleep
-
 # Replace with your actual vocabulary DataFrame
 # all_vocab = pd.read_csv("vocab.csv")  # or however you're loading it
 
@@ -303,28 +297,46 @@ if "current_question" not in st.session_state:
     st.session_state.current_question = None
 
 
+# List of word types (adjust as needed)
+WORD_TYPES = ["Noun", "Verb", "Adjective", "Pronoun"]
+
+@st.fragment
 def generate_question():
-    sampled_rows = all_vocab.sample(3)
-    chosen_row = sampled_rows.head(1)
-    correct = chosen_row["translation"].values[0]
-    dummy_1 = sampled_rows[1:2]["translation"].values[0]
-    dummy_2 = sampled_rows[2:]["translation"].values[0]
+    row = all_vocab.sample(1).iloc[0]
 
-    # Shuffle answers
-    answers = [
-        {"text": correct, "is_correct": True},
-        {"text": dummy_1, "is_correct": False},
-        {"text": dummy_2, "is_correct": False}
-    ]
+    # Randomly choose question type
+    question_type = random.choice(["translation", "type"])
+
+    if question_type == "translation":
+        # Sample 2 wrong answers
+        distractors = all_vocab[all_vocab["translation"] != row["translation"]].sample(2)["translation"].tolist()
+        answers = [
+            {"text": row["translation"], "is_correct": True},
+            {"text": distractors[0], "is_correct": False},
+            {"text": distractors[1], "is_correct": False},
+        ]
+        prompt = "TRANSLATE: What is the English translation of this word? Click the correct button."
+
+    else:  # word type question
+        correct_type = row["What"]
+        distractors = [w for w in WORD_TYPES if w != correct_type]
+        random_distractors = random.sample(distractors, 2)
+        answers = [
+            {"text": correct_type, "is_correct": True},
+            {"text": random_distractors[0], "is_correct": False},
+            {"text": random_distractors[1], "is_correct": False},
+        ]
+        prompt = "IDENTIFY: What type of word is this? Click the correct button."
+
     random.shuffle(answers)
-    word = chosen_row["word"].values[0]
-    play_sound(word)
 
-    # Save current question in session state
     st.session_state.current_question = {
-        "word": word,
+        "word": row["word"],
         "answers": answers,
+        "prompt": prompt,
+        "type": question_type,
     }
+
 
 with tab3:
     if not st.session_state.game_started:
@@ -333,17 +345,17 @@ with tab3:
             generate_question()
 
     if st.session_state.game_started and st.session_state.current_question:
-        word = st.session_state.current_question["word"]
-        answers = st.session_state.current_question["answers"]
-
-        st.header(word)
-        # play_sound(word, autoplay=True)  # Uncomment if `play_sound()` is defined
-
+        q = st.session_state.current_question
+        st.subheader(q["prompt"])
+        st.header(q["word"])
+        hidden_col1, hidden_col2 = st.columns([0.01, 0.99])
+        with hidden_col1:
+            play_sound(q["word"], autoplay=True)  # Optional audio playback
         cols = st.columns(3)
-        for col, answer in zip(cols, answers):
-            if col.button(answer["text"]):
-                if answer["is_correct"]:
-                    st.success("Well done! Generating a new question")
+        for col, ans in zip(cols, q["answers"]):
+            if col.button(ans["text"]):
+                if ans["is_correct"]:
+                    st.success("Well done! Generating a new question.")
                     sleep(2)
                     generate_question()
                     st.rerun()
