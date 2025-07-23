@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from gtts import gTTS
+from io import BytesIO
 
 st.title("An Introduction to Esperanto")
 
@@ -21,7 +23,13 @@ def read_in():
 
 pronouns, adjectives, nouns, colours, verbs = read_in()
 
-tab1, tab2 = st.tabs(["Sentence Playground", "Sentence Game"])
+tab1, tab2, tab3 = st.tabs(["Sentence Playground", "Sentence Practice", "Vocab Game"])
+
+def play_sound(text, autoplay=True):
+    sound_file = BytesIO()
+    tts = gTTS(text, lang='fr')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file, autoplay=autoplay)
 
 with tab1:
 
@@ -52,6 +60,8 @@ with tab1:
                                     key="pronoun",
                                     label_visibility="hidden")
 
+            # play_sound(pronoun)
+
         with col_adjective_1_es:
             st.subheader("Adjective")
 
@@ -64,6 +74,8 @@ with tab1:
                                     colour_list,
                                     key="adjective_1",
                                     label_visibility="hidden")
+
+            # play_sound(adjective_1)
 
             if plural:
                 adjective_1 = adjective_1[:-1]
@@ -80,6 +92,8 @@ with tab1:
                                 key="noun",
                                 label_visibility="hidden")
 
+            # play_sound(noun)
+
             if plural:
                 noun = noun[:-1]
 
@@ -89,6 +103,8 @@ with tab1:
             verb = st.selectbox("Select", list(verbs.verb),
                                 key="verb",
                                 label_visibility="hidden")
+
+            # play_sound(verb)
 
 
         with col_adjective_2_es:
@@ -101,6 +117,8 @@ with tab1:
             adjective_2 = st.selectbox("Select", adjective_2_list, key="adjective_2",
                                     label_visibility="hidden")
 
+            # play_sound(adjective_2)
+
             if plural:
                 adjective_2 = adjective_2[:-1]
 
@@ -112,6 +130,7 @@ with tab1:
         with col_la_en:
             pronoun_translated = pronouns[pronouns["pronoun"] == pronoun]
             st.markdown(pronoun_translated['translation'].values[0])
+
 
         with col_adjective_1_en:
             adjective_1_translated = colours[colours["colour"] == adjective_1]
@@ -139,4 +158,110 @@ with tab1:
             st.markdown(adjective_2_translated['translation'].values[0])
             st.header(adjective_2_translated['emoji'].values[0])
 
+        full_sentence = f"{pronoun} {adjective_1} {noun} {verb} {adjective_2}"
+
+        play_sentence_button = st.button("Click to hear the sentence")
+
+
+        if play_sentence_button:
+            play_sound(full_sentence)
+
     playground()
+
+
+with tab2:
+    st.subheader("Sentence 1")
+
+    correct = "La kato estas bruna"
+
+    st.markdown("How do you say 'the cat is brown'?")
+
+    col_s_1, col_s_2, col_s_3, col_s_4, col_s_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
+
+    col_s_1.markdown("### La")
+
+    word_2_sentence_1_choices = {
+            "Choose": "",
+            'katas': "In katas, the -as ending indicates a verb",
+            'kata': "Kata is an adjective because of the 'a' ending, so this would be 'catlike'",
+            "katoj": "Katoj is a noun - but the -j ending is a plural, and we only have one cat here",
+            "kato": ""
+
+        }
+
+    word_2_sentence_1 = col_s_2.selectbox("col_s_2", word_2_sentence_1_choices, label_visibility="hidden")
+
+    col_s_3.markdown("### estas")
+
+    word_4_sentence_1_choices = {
+            "Choose": "",
+            'bruni': "In bruni, the -as ending indicates a verb",
+            'brunaj': "Brunaj is almost correct, but the -j ending would be used for multiple cats, not just one",
+            "bruna": "",
+            "bruno": "The -o ending in 'bruno' means this is a noun, not an adjective"
+
+        }
+
+    word_4_sentence_1 = col_s_4.selectbox("col_s_4", ["Choose", "bruni", "brunaj", "bruna", "bruno"], label_visibility="hidden")
+
+    sentence_1 = f"La {word_2_sentence_1} estas {word_4_sentence_1}"
+
+    with col_s_5:
+        if sentence_1 == correct:
+            st.success("Well done!")
+            play_sound(sentence_1)
+        elif word_2_sentence_1 == "Choose" or word_4_sentence_1 == "Choose":
+            st.info("Choose your answers using the dropdown boxes")
+        else:
+            st.warning(f"Not quite - try again!\n\n{word_2_sentence_1_choices[word_2_sentence_1]}\n\n{word_4_sentence_1_choices[word_4_sentence_1]}")
+
+
+    ########################################
+    # SENTENCE 2
+    #######################################
+
+    st.divider()
+
+    st.subheader("Sentence 2")
+
+    correct = "Ŝi legas en la domo"
+
+    st.markdown("How do you say 'She is reading in the house'?")
+
+    col_s2_1, col_s2_2, col_s2_3, col_s2_4, col_s2_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
+
+    col_s2_1.markdown("### Ŝi")
+
+    word_2_sentence_2_choices = {
+            "Choose": "",
+            'legis': "Legis is a verb form, but the present tense, not the future",
+            'lego': "Lego is a noun ending - you're on the right track, but are looking for one extra letter to get the future tense verb!",
+            "legas": "Legas is a verb form, but the present tense, not the future",
+            "legos": ""
+        }
+
+
+    word_2_sentence_2 = col_s2_2.selectbox("col_s2_2", ["Choose", "legis", "lego", "legas", "legos"], label_visibility="hidden")
+
+    col_s2_3.markdown("### en la")
+
+    word_4_sentence_2_choices = {
+            "Choose": "",
+            'doma': "In libra, the -a ending indicates an adjective, so this is like saying 'houselike'",
+            'domo': "",
+            "domos": "The -os ending is a verb that indicates something will be done in the future",
+            "domoj": "The -o ending does indicate a noun here, but the -j indicates multiple houses"
+        }
+
+    word_4_sentence_2 = col_s2_4.selectbox("col_s2_4", word_4_sentence_2_choices, label_visibility="hidden")
+
+
+    sentence_2 = f"La {word_2_sentence_2} estas {word_4_sentence_2}"
+
+    with col_s2_5:
+        if sentence_2 == correct:
+            st.success("Well done!")
+        elif word_2_sentence_2 == "Choose" or word_4_sentence_2 == "Choose":
+            st.info("Choose your answers using the dropdown boxes")
+        else:
+            st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
