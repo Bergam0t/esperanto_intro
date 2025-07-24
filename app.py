@@ -206,7 +206,7 @@ with tab1:
 with tab2:
     st.subheader("Sentence 1")
 
-    st.markdown("How do you say 'the cat is brown'?")
+    st.markdown("How do you say 'The **cat** is **brown**'?")
 
     @st.fragment
     def q_sentence_1():
@@ -262,7 +262,7 @@ with tab2:
 
     st.subheader("Sentence 2")
 
-    st.markdown("How do you say 'She was dancing in the house'?")
+    st.markdown("How do you say 'She **danced** in the **house**'?")
 
     def q_sentence_2():
         correct = "Ŝi dancis en la domo"
