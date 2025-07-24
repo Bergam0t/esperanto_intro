@@ -44,9 +44,10 @@ def read_in():
 
 pronouns, adjectives, nouns, colours, verbs, all_vocab = read_in()
 
-st.image("esperanto_summary.png", width=800)
+with st.expander("Feeling confident? Click this text to hide these hints.", expanded=True):
+    st.image("esperanto_summary.png", width=800)
 
-tab2, tab1, tab3 = st.tabs(["Sentence Playground", "Sentence Practice", "Vocab Game"])
+tab2, tab1, tab3 = st.tabs(["Sentence Practice", "Sentence Playground", "Vocab Game"])
 
 def play_sound(text, autoplay=True):
     sound_file = BytesIO()
@@ -76,7 +77,7 @@ with tab1:
 
 
         with col_la_es:
-            st.subheader("Pronoun")
+            st.subheader("Pronoun/Article")
 
             pronoun = st.selectbox("Select",
                                     list(pronouns.pronoun),
@@ -190,6 +191,16 @@ with tab1:
             play_sound(full_sentence)
 
     playground()
+
+    st.info(
+        """
+        **Why do these pronouns have an -a ending?**
+        It's to indicate *possession* - like 'my' (mia) rather than I (mi)
+
+        **What is an article?**
+        Articles like 'the' (called the 'definite article') and 'a' (the 'indefinite article') are used before nouns. In this sentence, we can use either a *posessive pronoun*, or an *article*.
+        """
+    )
 
 
 with tab2:
