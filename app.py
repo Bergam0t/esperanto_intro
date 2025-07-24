@@ -44,7 +44,9 @@ def read_in():
 
 pronouns, adjectives, nouns, colours, verbs, all_vocab = read_in()
 
-tab1, tab2, tab3 = st.tabs(["Sentence Playground", "Sentence Practice", "Vocab Game"])
+st.image("esperanto_summary.png", width=800)
+
+tab2, tab1, tab3 = st.tabs(["Sentence Playground", "Sentence Practice", "Vocab Game"])
 
 def play_sound(text, autoplay=True):
     sound_file = BytesIO()
@@ -193,49 +195,53 @@ with tab1:
 with tab2:
     st.subheader("Sentence 1")
 
-    correct = "La kato estas bruna"
-
     st.markdown("How do you say 'the cat is brown'?")
 
-    col_s_1, col_s_2, col_s_3, col_s_4, col_s_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
+    @st.fragment
+    def q_sentence_1():
+        correct = "La kato estas bruna"
 
-    col_s_1.markdown("### La")
+        col_s_1, col_s_2, col_s_3, col_s_4, col_s_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
 
-    word_2_sentence_1_choices = {
-            "Choose": "",
-            'katas': "In katas, the -as ending indicates a verb",
-            'kata': "Kata is an adjective because of the 'a' ending, so this would be 'catlike'",
-            "katoj": "Katoj is a noun - but the -j ending is a plural, and we only have one cat here",
-            "kato": ""
+        col_s_1.markdown("### La")
 
-        }
+        word_2_sentence_1_choices = {
+                "Choose": "",
+                'katas': "In katas, the -as ending indicates a verb",
+                'kata': "Kata is an adjective because of the 'a' ending, so this would be 'catlike'",
+                "katoj": "Katoj is a noun - but the -j ending is a plural, and we only have one cat here",
+                "kato": ""
 
-    word_2_sentence_1 = col_s_2.selectbox("col_s_2", word_2_sentence_1_choices, label_visibility="hidden")
+            }
 
-    col_s_3.markdown("### estas")
+        word_2_sentence_1 = col_s_2.selectbox("col_s_2", word_2_sentence_1_choices, label_visibility="hidden")
 
-    word_4_sentence_1_choices = {
-            "Choose": "",
-            'bruni': "In bruni, the -as ending indicates a verb",
-            'brunaj': "Brunaj is almost correct, but the -j ending would be used for multiple cats, not just one",
-            "bruna": "",
-            "bruno": "The -o ending in 'bruno' means this is a noun, not an adjective"
+        col_s_3.markdown("### estas")
 
-        }
+        word_4_sentence_1_choices = {
+                "Choose": "",
+                'bruni': "In bruni, the -as ending indicates a verb",
+                'brunaj': "Brunaj is almost correct, but the -j ending would be used for multiple cats, not just one",
+                "bruna": "",
+                "bruno": "The -o ending in 'bruno' means this is a noun, not an adjective"
 
-    word_4_sentence_1 = col_s_4.selectbox("col_s_4", ["Choose", "bruni", "brunaj", "bruna", "bruno"], label_visibility="hidden")
+            }
 
-    sentence_1 = f"La {word_2_sentence_1} estas {word_4_sentence_1}"
+        word_4_sentence_1 = col_s_4.selectbox("col_s_4", ["Choose", "bruni", "brunaj", "bruna", "bruno"], label_visibility="hidden")
 
-    with col_s_5:
-        if sentence_1 == correct:
-            st.success("Well done!")
-            play_sound(sentence_1)
-        elif word_2_sentence_1 == "Choose" or word_4_sentence_1 == "Choose":
-            st.info("Choose your answers using the dropdown boxes")
-        else:
-            st.warning(f"Not quite - try again!\n\n{word_2_sentence_1_choices[word_2_sentence_1]}\n\n{word_4_sentence_1_choices[word_4_sentence_1]}")
+        sentence_1 = f"La {word_2_sentence_1} estas {word_4_sentence_1}"
 
+        with col_s_5:
+            if sentence_1 == correct:
+                st.success("Well done!")
+                st.write("Click the play button to hear this sentence")
+                play_sound(sentence_1, autoplay=False)
+            elif word_2_sentence_1 == "Choose" or word_4_sentence_1 == "Choose":
+                st.info("Choose your answers using the dropdown boxes")
+            else:
+                st.warning(f"Not quite - try again!\n\n{word_2_sentence_1_choices[word_2_sentence_1]}\n\n{word_4_sentence_1_choices[word_4_sentence_1]}")
+
+    q_sentence_1()
 
     ########################################
     # SENTENCE 2
@@ -245,47 +251,51 @@ with tab2:
 
     st.subheader("Sentence 2")
 
-    correct = "Ŝi legas en la domo"
+    st.markdown("How do you say 'She was dancing in the house'?")
 
-    st.markdown("How do you say 'She is reading in the house'?")
+    def q_sentence_2():
+        correct = "Ŝi dancis en la domo"
 
-    col_s2_1, col_s2_2, col_s2_3, col_s2_4, col_s2_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
+        col_s2_1, col_s2_2, col_s2_3, col_s2_4, col_s2_5 = st.columns([0.1, 0.2, 0.1, 0.2, 0.4])
 
-    col_s2_1.markdown("### Ŝi")
+        col_s2_1.markdown("### Ŝi")
 
-    word_2_sentence_2_choices = {
-            "Choose": "",
-            'legis': "Legis is a verb form, but the present tense, not the future",
-            'lego': "Lego is a noun ending - you're on the right track, but are looking for one extra letter to get the future tense verb!",
-            "legas": "Legas is a verb form, but the present tense, not the future",
-            "legos": ""
-        }
-
-
-    word_2_sentence_2 = col_s2_2.selectbox("col_s2_2", ["Choose", "legis", "lego", "legas", "legos"], label_visibility="hidden")
-
-    col_s2_3.markdown("### en la")
-
-    word_4_sentence_2_choices = {
-            "Choose": "",
-            'doma': "In doma, the -a ending indicates an adjective, so this is like saying 'houselike'",
-            'domo': "",
-            "domos": "In domos, the -os ending is a verb that indicates something will be done in the future",
-            "domoj": "In domoj, the -o ending does indicate a noun here, but the -j indicates multiple houses"
-        }
-
-    word_4_sentence_2 = col_s2_4.selectbox("col_s2_4", word_4_sentence_2_choices, label_visibility="hidden")
+        word_2_sentence_2_choices = {
+                "Choose": "",
+                'danco': "Danco is a noun ending - you're on the right track, but are looking for one extra letter to get the future tense verb!",
+                "dancas": "Dancis is a verb form, but the present tense, not the past",
+                'dancis': "",
+                "dancos": "Dancos is a verb form, but in the future tense, not the past"
+            }
 
 
-    sentence_2 = f"La {word_2_sentence_2} estas {word_4_sentence_2}"
+        word_2_sentence_2 = col_s2_2.selectbox("col_s2_2", word_2_sentence_2_choices, label_visibility="hidden")
 
-    with col_s2_5:
-        if sentence_2 == correct:
-            st.success("Well done!")
-        elif word_2_sentence_2 == "Choose" or word_4_sentence_2 == "Choose":
-            st.info("Choose your answers using the dropdown boxes")
-        else:
-            st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
+        col_s2_3.markdown("### en la")
+
+        word_4_sentence_2_choices = {
+                "Choose": "",
+                'doma': "In doma, the -a ending indicates an adjective, so this is like saying 'houselike'",
+                'domo': "",
+                "domos": "In domos, the -os ending is a verb that indicates something will be done in the future",
+                "domoj": "In domoj, the -o ending does indicate a noun here, but the -j indicates multiple houses"
+            }
+
+        word_4_sentence_2 = col_s2_4.selectbox("col_s2_4", word_4_sentence_2_choices, label_visibility="hidden")
+
+        sentence_2 = f"Ŝi {word_2_sentence_2} en la {word_4_sentence_2}"
+
+        with col_s2_5:
+            if sentence_2 == correct:
+                st.success("Well done!")
+                st.write("Click the play button to hear this sentence")
+                play_sound(sentence_2, autoplay=False)
+            elif word_2_sentence_2 == "Choose" or word_4_sentence_2 == "Choose":
+                st.info("Choose your answers using the dropdown boxes")
+            else:
+                st.warning(f"Not quite - try again!\n\n{word_2_sentence_2_choices[word_2_sentence_2]}\n\n{word_4_sentence_2_choices[word_4_sentence_2]}")
+
+    q_sentence_2()
 
 # Replace with your actual vocabulary DataFrame
 # all_vocab = pd.read_csv("vocab.csv")  # or however you're loading it
